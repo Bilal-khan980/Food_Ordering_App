@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/common_widget/round_button.dart';
+import 'package:my_app/login/login_view.dart';
+import '../common/colours.dart';
 
 class WelcomeView extends StatefulWidget {
   const WelcomeView({super.key});
@@ -37,6 +40,45 @@ class _WelcomeViewState extends State<WelcomeView> {
                 ),
               ),
             ],
+          ),
+          SizedBox(
+            height: media.height * 0.01,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Text(
+              'Discover the best foods from over 1,000 restaurants and fast delivery to your \ndoorstep',
+              style: TextStyle(
+                  color: Colourss.secondarytext,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          SizedBox(
+            height: media.height * 0.02,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Roundbutton(
+              text: "LOGIN",
+              bgCOlor: "p",
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const LoginView()));
+              },
+            ),
+          ),
+          SizedBox(
+            height: media.height * 0.04,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Roundbutton(
+              text: "CREATE AN ACCOUNT",
+              bgCOlor: "x",
+              onPressed: () {},
+            ),
           ),
         ],
       ),
