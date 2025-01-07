@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/common_widget/round_button.dart';
 import 'package:my_app/common_widget/textfield.dart';
+import 'package:my_app/login/signup_view.dart';
 import '../common/colours.dart';
 
 class LoginView extends StatefulWidget {
@@ -177,7 +178,12 @@ class _LoginViewState extends State<LoginView> {
                       color: Colourss.secondarytext,
                     )),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const SignUp()));
+                  },
                   child: Text(
                     "Sign Up",
                     style: TextStyle(
