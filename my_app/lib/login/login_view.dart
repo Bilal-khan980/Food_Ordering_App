@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:my_app/common_widget/round_button.dart';
 import 'package:my_app/common_widget/textfield.dart';
 import 'package:my_app/login/signup_view.dart';
+import 'package:my_app/on_boarding/onboarding.dart';
 import '../common/colours.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -68,11 +71,54 @@ class _LoginViewState extends State<LoginView> {
               child: Roundbutton(
                 text: "LOGIN",
                 bgCOlor: "p",
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const LoginView()));
+                onPressed: () async {
+                  try {
+                    // Sign in the user
+                    UserCredential userCredential =
+                        await FirebaseAuth.instance.signInWithEmailAndPassword(
+                      email: emailController.text.trim(),
+                      password: passwordController.text.trim(),
+                    );
+
+                    // Get the user's UID
+                    final uid = userCredential.user?.uid;
+
+                    if (uid == null) {
+                      throw Exception("User ID is null");
+                    }
+
+                    // Check if the user exists in Firestore
+                    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(uid)
+                        .get();
+
+                    if (userDoc.exists) {
+                      // User exists in the database, navigate to the new page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const OnboardingScreens()),
+                      );
+                    } else {
+                      // User does not exist in Firestore
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text("User not found in the database")),
+                      );
+                    }
+                  } on FirebaseAuthException catch (e) {
+                    // Handle Firebase Authentication errors
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text(e.message ?? "Authentication error!")),
+                    );
+                  } catch (e) {
+                    // Handle other errors
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Error: ${e.toString()}")),
+                    );
+                  }
                 },
               ),
             ),
@@ -100,73 +146,6 @@ class _LoginViewState extends State<LoginView> {
                 fontWeight: FontWeight.w500,
                 color: Colourss.secondarytext,
               ),
-            ),
-            SizedBox(
-              height: view.height * 0.02,
-            ),
-            InkWell(
-              onTap: () {},
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Color(0xff367FC0),
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                height: 56,
-                alignment: Alignment.center,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/images/facebook_icon.png',
-                      height: 15,
-                      width: 15,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text('Login With Facebook',
-                        style: TextStyle(
-                            color: Colourss.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600)),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(
-              height: view.height * 0.02,
-            ),
-            InkWell(
-              onTap: () {},
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Color(0xffDD4B39),
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                height: 56,
-                alignment: Alignment.center,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/images/google_icon.png',
-                      height: 20,
-                      width: 20,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text('Login With Google',
-                        style: TextStyle(
-                            color: Colourss.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600)),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(
-              height: view.height * 0.05,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

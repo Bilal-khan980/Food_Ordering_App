@@ -3,6 +3,8 @@ import 'package:my_app/common_widget/round_button.dart';
 import 'package:my_app/common_widget/textfield.dart';
 import 'package:my_app/login/login_view.dart';
 import '../common/colours.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -103,7 +105,50 @@ class _SignUpState extends State<SignUp> {
               child: Roundbutton(
                 text: "SIGN UP",
                 bgCOlor: "p",
-                onPressed: () {},
+                onPressed: () async {
+                  if (passwordController.text !=
+                      confrmpasswordController.text) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Passwords do not match!")),
+                    );
+                    return;
+                  }
+
+                  try {
+                    // Create User with Email and Password
+                    UserCredential userCredential = await FirebaseAuth.instance
+                        .createUserWithEmailAndPassword(
+                      email: emailController.text.trim(),
+                      password: passwordController.text.trim(),
+                    );
+
+                    // Save additional user information in Firestore
+                    await FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(userCredential.user?.uid)
+                        .set({
+                      'name': nameController.text.trim(),
+                      'email': emailController.text.trim(),
+                      'mobile': mobilenumberController.text.trim(),
+                      'address': addressController.text.trim(),
+                      'uid': userCredential.user?.uid,
+                    });
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Sign up successful!")),
+                    );
+
+                    // Navigate to Login Screen
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LoginView()));
+                  } on FirebaseAuthException catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(e.message ?? "Error occurred!")),
+                    );
+                  }
+                },
               ),
             ),
             SizedBox(
